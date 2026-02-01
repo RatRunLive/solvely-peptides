@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solvely Peptides — Gold Premium Research</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --white: #FFFFFF; --sapphire: #083B73; --ice-blue: #7FB9FF; --gold: #D4AF37;
+            --dark-sapphire: #052547; --light-gray: #F8F9FA; --border-gray: #E5E7EB;
+            --text-dark: #1F2937; --text-light: #6B7280;
+        }
+        body { font-family: 'Montserrat', sans-serif; color: var(--text-dark); background: var(--white); line-height: 1.6; overflow-x: hidden; }
+        h1, h2, h3, h4, h5, h6 { font-family: 'Cormorant Garamond', serif; font-weight: 600; color: var(--sapphire); }
+        .header { position: sticky; top: 0; background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(10px); border-bottom: 1px solid var(--gold); box-shadow: 0 2px 20px rgba(8, 59, 115, 0.08); z-index: 1000; padding: 1.2rem 2rem; }
+        .header-content { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 2rem; }
+        .logo { flex-shrink: 0; cursor: pointer; }
+        .logo h1 { font-size: 1.8rem; font-weight: 700; letter-spacing: 2px; margin-bottom: 0.25rem; background: linear-gradient(135deg, var(--sapphire), var(--ice-blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .logo-tagline { font-size: 0.75rem; color: var(--gold); letter-spacing: 1.5px; text-transform: uppercase; font-weight: 500; }
+        .nav { display: flex; gap: 2rem; align-items: center; flex-wrap: wrap; }
+        .nav-link { color: var(--sapphire); text-decoration: none; font-weight: 500; font-size: 0.95rem; position: relative; transition: all 0.3s ease; cursor: pointer; }
+        .nav-link:hover { color: var(--ice-blue); }
+        .nav-link::after { content: ''; position: absolute; bottom: -5px; left: 0; width: 0; height: 2px; background: var(--gold); transition: width 0.3s ease; }
+        .nav-link:hover::after { width: 100%; }
+        .header-icons { display: flex; gap: 1.5rem; align-items: center; }
+        .icon-btn { background: none; border: none; cursor: pointer; color: var(--sapphire); font-size: 1.5rem; transition: all 0.3s ease; position: relative; padding: 0.5rem; }
+        .icon-btn:hover { color: var(--gold); transform: translateY(-2px); }
+        .cart-badge { position: absolute; top: 0; right: 0; background: var(--gold); color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 0.7rem; display: flex; align-items: center; justify-content: center; font-weight: 600; }
+        .mini-cart-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); z-index: 2000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+        .mini-cart-overlay.active { opacity: 1; pointer-events: auto; }
+        .mini-cart { position: fixed; top: 0; right: -450px; width: 450px; max-width: 100vw; height: 100vh; background: white; box-shadow: -5px 0 30px rgba(8, 59, 115, 0.15); z-index: 2001; transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; }
+        .mini-cart.active { right: 0; }
+        .mini-cart-header { padding: 1.5rem 2rem; border-bottom: 1px solid var(--gold); display: flex; justify-content: space-between; align-items: center; background: linear-gradient(to bottom, #f8f9fa, white); }
+        .mini-cart-header h3 { font-size: 1.5rem; color: var(--sapphire); }
+        .close-cart { background: none; border: none; font-size: 1.8rem; color: var(--sapphire); cursor: pointer; padding: 0.5rem; transition: all 0.3s ease; }
+        .close-cart:hover { color: var(--gold); transform: rotate(90deg); }
+        .mini-cart-items { flex: 1; overflow-y: auto; padding: 1.5rem 2rem; }
+        .mini-cart-item { display: flex; gap: 1rem; padding: 1.5rem 0; border-bottom: 1px solid var(--border-gray); animation: slideIn 0.3s ease; }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+        .mini-cart-item-img { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border-gray); }
+        .mini-cart-item-details { flex: 1; }
+        .mini-cart-item-name { font-weight: 600; color: var(--sapphire); margin-bottom: 0.5rem; }
+        .mini-cart-item-option { font-size: 0.85rem; color: var(--text-light); margin-bottom: 0.5rem; }
+        .mini-cart-item-price { font-weight: 600; color: var(--gold); font-size: 1.1rem; }
+        .mini-cart-qty { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem; }
+        .qty-btn { width: 28px; height: 28px; border: 1px solid var(--sapphire); background: white; color: var(--sapphire); border-radius: 4px; cursor: pointer; transition: all 0.3s ease; font-weight: 600; }
+        .qty-btn:hover { background: var(--sapphire); color: white; }
+        .qty-display { min-width: 30px; text-align: center; font-weight: 600; }
+        .remove-item { background: none; border: none; color: #EF4444; cursor: pointer; font-size: 1.2rem; padding: 0.5rem; transition: all 0.3s ease; }
+        .remove-item:hover { color: #DC2626; transform: scale(1.1); }
+        .mini-cart-empty { text-align: center; padding: 4rem 2rem; }
+        .mini-cart-empty-icon { font-size: 4rem; color: var(--border-gray); margin-bottom: 1rem; }
+        .mini-cart-empty p { color: var(--text-light); margin-bottom: 1.5rem; }
+        .mini-cart-footer { border-top: 2px solid var(--gold); padding: 1.5rem 2rem; background: linear-gradient(to top, #f8f9fa, white); }
+        .mini-cart-subtotal { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; font-size: 1.2rem; }
+        .mini-cart-subtotal strong { color: var(--sapphire); }
+        .mini-cart-subtotal-amount { color: var(--gold); font-weight: 700; font-size: 1.5rem; }
+        .mini-cart-buttons { display: flex; flex-direction: column; gap: 0.75rem; }
+        .btn { padding: 1rem 2rem; border: none; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.3s ease; text-decoration: none; display: inline-block; text-align: center; font-family: 'Montserrat', sans-serif; }
+        .btn-primary { background: linear-gradient(135deg, var(--sapphire), var(--ice-blue)); color: white; box-shadow: 0 4px 15px rgba(8, 59, 115, 0.3); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(8, 59, 115, 0.4); }
+        .btn-secondary { background: white; color: var(--sapphire); border: 2px solid var(--sapphire); }
+        .btn-secondary:hover { background: var(--sapphire); color: white; transform: translateY(-2px); }
+        .btn-gold { background: var(--gold); color: white; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3); }
+        .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .hero { background: linear-gradient(135deg, var(--dark-sapphire) 0%, var(--sapphire) 50%, var(--ice-blue) 100%); padding: 6rem 2rem; position: relative; overflow: hidden; }
+        .hero::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at 20% 50%, rgba(212, 175, 55, 0.1) 0%, transparent 50%), radial-gradient(circle at 80% 50%, rgba(127, 185, 255, 0.1) 0%, transparent 50%); pointer-events: none; }
+        .hero-content { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; position: relative; z-index: 1; }
+        .hero-text h1 { font-size: 3.5rem; color: white; margin-bottom: 1rem; line-height: 1.2; animation: fadeInUp 0.8s ease; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .hero-text h2 { font-size: 1.5rem; color: var(--gold); margin-bottom: 2rem; font-weight: 400; animation: fadeInUp 0.8s ease 0.2s both; }
+        .hero-buttons { display: flex; gap: 1rem; animation: fadeInUp 0.8s ease 0.4s both; }
+        .hero-image { background: white; border-radius: 16px; padding: 2rem; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); border: 1px solid var(--gold); animation: fadeInUp 0.8s ease 0.6s both; }
+        .hero-image img { width: 100%; border-radius: 8px; }
+        .safety-ribbon { background: linear-gradient(90deg, var(--gold), #F4E4C1, var(--gold)); padding: 0.75rem 2rem; text-align: center; font-size: 0.9rem; color: var(--dark-sapphire); font-weight: 600; border-top: 1px solid rgba(212, 175, 55, 0.3); border-bottom: 1px solid rgba(212, 175, 55, 0.3); }
+        .highlights { max-width: 1400px; margin: 0 auto; padding: 5rem 2rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; }
+        .highlight-card { background: white; padding: 2rem; border-radius: 12px; border: 1px solid var(--border-gray); box-shadow: 0 4px 20px rgba(8, 59, 115, 0.08); text-align: center; transition: all 0.3s ease; }
+        .highlight-card:hover { transform: translateY(-8px); box-shadow: 0 8px 30px rgba(8, 59, 115, 0.15); border-color: var(--gold); }
+        .highlight-icon { font-size: 3rem; margin-bottom: 1rem; color: var(--gold); }
+        .highlight-card h3 { font-size: 1.2rem; margin-bottom: 0.5rem; }
+        .highlight-card p { color: var(--text-light); font-size: 0.9rem; }
+        .page-header { background: linear-gradient(135deg, var(--dark-sapphire), var(--sapphire)); padding: 3rem 2rem; text-align: center; margin-bottom: 3rem; }
+        .page-header h1 { font-size: 3rem; color: white; margin-bottom: 0.5rem; }
+        .page-header p { color: var(--gold); font-size: 1.2rem; }
+        .content-section { max-width: 1400px; margin: 0 auto; padding: 3rem 2rem; }
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.7); display: flex; align-items: center; justify-content: center; z-index: 3000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal { background: white; padding: 3rem; border-radius: 16px; max-width: 500px; width: 90%; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); border: 2px solid var(--gold); transform: scale(0.9); transition: transform 0.3s ease; }
+        .modal-overlay.active .modal { transform: scale(1); }
+        .modal h3 { font-size: 1.8rem; margin-bottom: 1rem; color: var(--sapphire); }
+        .modal p { color: var(--text-dark); margin-bottom: 2rem; line-height: 1.6; }
+        .footer { background: linear-gradient(to bottom, var(--dark-sapphire), var(--sapphire)); color: white; padding: 4rem 2rem 2rem; margin-top: 5rem; }
+        .footer-content { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 3rem; margin-bottom: 3rem; }
+        .footer-section h3 { color: var(--gold); margin-bottom: 1.5rem; font-size: 1.3rem; }
+        .footer-section p { color: rgba(255, 255, 255, 0.8); line-height: 1.8; margin-bottom: 1rem; }
+        .footer-links { list-style: none; }
+        .footer-links li { margin-bottom: 0.75rem; }
+        .footer-links a { color: rgba(255, 255, 255, 0.8); text-decoration: none; transition: all 0.3s ease; cursor: pointer; }
+        .footer-links a:hover { color: var(--gold); padding-left: 5px; }
+        .footer-contact-btn { display: block; background: var(--gold); color: var(--dark-sapphire); padding: 0.75rem 1.5rem; border-radius: 6px; text-decoration: none; text-align: center; font-weight: 600; margin-bottom: 1rem; transition: all 0.3s ease; }
+        .footer-contact-btn:hover { background: #F4E4C1; transform: translateY(-2px); }
+        .footer-bottom { border-top: 1px solid rgba(255, 255, 255, 0.2); padding-top: 2rem; text-align: center; color: rgba(255, 255, 255, 0.6); font-size: 0.9rem; }
+        @media (max-width: 1024px) {
+            .hero-content { grid-template-columns: 1fr; }
+            .highlights { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 768px) {
+            .header-content { flex-direction: column; gap: 1rem; }
+            .nav { flex-wrap: wrap; gap: 1rem; justify-content: center; }
+            .hero-text h1 { font-size: 2rem; }
+            .highlights { grid-template-columns: 1fr; }
+            .mini-cart { width: 100%; right: -100%; }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel" data-presets="react">
+        const { useState } = React;
+
+        function App() {
+            const [currentPage, setCurrentPage] = useState('home');
+            const [cart, setCart] = useState([]);
+            const [miniCartOpen, setMiniCartOpen] = useState(false);
+            const [showTelegramModal, setShowTelegramModal] = useState(false);
+
+            const productData = {
+                id: 1,
+                name: "Tirzepatide (Grau para Pesquisa)",
+                options: [
+                    { id: '1mg', label: '1mg', price: 299.99 },
+                    { id: '2.5mg', label: '2,5mg', price: 449.99 },
+                    { id: '5mg', label: '5mg', price: 599.99 }
+                ],
+                image: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><rect fill="%23f8f9fa" width="400" height="400"/><text x="50%" y="50%" font-family="Arial" font-size="20" fill="%23083B73" text-anchor="middle" dominant-baseline="middle">Tirzepatide Research Grade</text></svg>'
+            };
+
+            const calculateTotals = () => {
+                let subtotal = 0;
+                let discount = 0;
+                const groupedItems = {};
+                cart.forEach(item => {
+                    const key = `${item.productId}-${item.option.id}`;
+                    if (!groupedItems[key]) groupedItems[key] = { items: [], totalQty: 0 };
+                    groupedItems[key].items.push(item);
+                    groupedItems[key].totalQty += item.quantity;
+                });
+                Object.values(groupedItems).forEach(group => {
+                    const itemPrice = group.items[0].option.price;
+                    const qty = group.totalQty;
+                    if (qty >= 3) {
+                        const discountedItems = Math.floor(qty / 3);
+                        const regularItems = qty - discountedItems;
+                        subtotal += regularItems * itemPrice;
+                        subtotal += discountedItems * itemPrice * 0.67;
+                        discount += discountedItems * itemPrice * 0.33;
+                    } else {
+                        subtotal += qty * itemPrice;
+                    }
+                });
+                return { subtotal, discount, total: subtotal };
+            };
+
+            const addToCart = (product, option, qty = 1) => {
+                const newItem = {
+                    id: Date.now(),
+                    productId: product.id,
+                    productName: product.name,
+                    option: option,
+                    quantity: qty,
+                    image: product.image
+                };
+                setCart([...cart, newItem]);
+                setMiniCartOpen(true);
+            };
+
+            const updateQuantity = (itemId, newQty) => {
+                if (newQty < 1) return;
+                setCart(cart.map(item => item.id === itemId ? { ...item, quantity: newQty } : item));
+            };
+
+            const removeFromCart = (itemId) => {
+                setCart(cart.filter(item => item.id !== itemId));
+            };
+
+            const getTotalItems = () => cart.reduce((sum, item) => sum + item.quantity, 0);
+
+            return (
+                <>
+                    <Header setCurrentPage={setCurrentPage} cartCount={getTotalItems()} setMiniCartOpen={setMiniCartOpen} setShowTelegramModal={setShowTelegramModal} />
+                    <MiniCart isOpen={miniCartOpen} setIsOpen={setMiniCartOpen} cart={cart} updateQuantity={updateQuantity} removeFromCart={removeFromCart} calculateTotals={calculateTotals} setCurrentPage={setCurrentPage} />
+                    <TelegramModal isOpen={showTelegramModal} setIsOpen={setShowTelegramModal} />
+                    {currentPage === 'home' && <HomePage setCurrentPage={setCurrentPage} productData={productData} addToCart={addToCart} />}
+                    {currentPage === 'produtos' && <ProductsPage productData={productData} addToCart={addToCart} />}
+                    {currentPage === 'cart' && <CartPage cart={cart} updateQuantity={updateQuantity} removeFromCart={removeFromCart} calculateTotals={calculateTotals} setCurrentPage={setCurrentPage} />}
+                    {currentPage === 'checkout' && <CheckoutPage cart={cart} calculateTotals={calculateTotals} />}
+                    <Footer setCurrentPage={setCurrentPage} setShowTelegramModal={setShowTelegramModal} />
+                </>
+            );
+        }
+
+        function Header({ setCurrentPage, cartCount, setMiniCartOpen, setShowTelegramModal }) {
+            return (
+                <header className="header">
+                    <div className="header-content">
+                        <div className="logo" onClick={() => setCurrentPage('home')}>
+                            <h1>SOLVELY PEPTIDES</h1>
+                            <div className="logo-tagline">Gold Premium Research</div>
+                        </div>
+                        <nav className="nav">
+                            <span className="nav-link" onClick={() => setCurrentPage('home')}>Home</span>
+                            <span className="nav-link" onClick={() => setCurrentPage('produtos')}>Produtos</span>
+                            <span className="nav-link">Qualidade/COA</span>
+                            <span className="nav-link">Consulta</span>
+                            <span className="nav-link">FAQ</span>
+                            <span className="nav-link">Contato</span>
+                        </nav>
+                        <div className="header-icons">
+                            <button className="icon-btn" onClick={() => window.open('https://wa.me/17744983791', '_blank')} title="WhatsApp">📱</button>
+                            <button className="icon-btn" onClick={() => setShowTelegramModal(true)} title="Telegram">✈️</button>
+                            <button className="icon-btn" onClick={() => setMiniCartOpen(true)} title="Carrinho">
+                                🛒{cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
+                            </button>
+                        </div>
+                    </div>
+                </header>
+            );
+        }
+
+        function MiniCart({ isOpen, setIsOpen, cart, updateQuantity, removeFromCart, calculateTotals, setCurrentPage }) {
+            const totals = calculateTotals();
+            return (
+                <>
+                    <div className={`mini-cart-overlay ${isOpen ? 'active' : ''}`} onClick={() => setIsOpen(false)} />
+                    <div className={`mini-cart ${isOpen ? 'active' : ''}`}>
+                        <div className="mini-cart-header">
+                            <h3>Carrinho</h3>
+                            <button className="close-cart" onClick={() => setIsOpen(false)}>×</button>
+                        </div>
+                        <div className="mini-cart-items">
+                            {cart.length === 0 ? (
+                                <div className="mini-cart-empty">
+                                    <div className="mini-cart-empty-icon">🛒</div>
+                                    <p>Seu carrinho está vazio.</p>
+                                    <button className="btn btn-primary" onClick={() => { setIsOpen(false); setCurrentPage('produtos'); }}>Ver produtos</button>
+                                </div>
+                            ) : (
+                                cart.map(item => (
+                                    <div key={item.id} className="mini-cart-item">
+                                        <img src={item.image} alt={item.productName} className="mini-cart-item-img" />
+                                        <div className="mini-cart-item-details">
+                                            <div className="mini-cart-item-name">{item.productName}</div>
+                                            <div className="mini-cart-item-option">{item.option.label}</div>
+                                            <div className="mini-cart-item-price">R$ {item.option.price.toFixed(2)}</div>
+                                            <div className="mini-cart-qty">
+                                                <button className="qty-btn" onClick={() => updateQuantity(item.id, item.quantity - 1)}>−</button>
+                                                <span className="qty-display">{item.quantity}</span>
+                                                <button className="qty-btn" onClick={() => updateQuantity(item.id, item.quantity + 1)}>+</button>
+                                            </div>
+                                        </div>
+                                        <button className="remove-item" onClick={() => removeFromCart(item.id)}>×</button>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                        {cart.length > 0 && (
+                            <div className="mini-cart-footer">
+                                <div className="mini-cart-subtotal">
+                                    <strong>Subtotal:</strong>
+                                    <span className="mini-cart-subtotal-amount">R$ {totals.total.toFixed(2)}</span>
+                                </div>
+                                <div className="mini-cart-buttons">
+                                    <button className="btn btn-secondary" onClick={() => { setIsOpen(false); setCurrentPage('cart'); }}>Ver carrinho</button>
+                                    <button className="btn btn-primary" onClick={() => { setIsOpen(false); setCurrentPage('checkout'); }}>Finalizar compra</button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </>
+            );
+        }
+
+        function TelegramModal({ isOpen, setIsOpen }) {
+            return (
+                <div className={`modal-overlay ${isOpen ? 'active' : ''}`} onClick={() => setIsOpen(false)}>
+                    <div className="modal" onClick={(e) => e.stopPropagation()}>
+                        <h3>Telegram: Em breve</h3>
+                        <p>Atendimento disponível via WhatsApp e Email.</p>
+                        <button className="btn btn-primary" style={{width: '100%'}} onClick={() => setIsOpen(false)}>Fechar</button>
+                    </div>
+                </div>
+            );
+        }
+
+        function HomePage({ setCurrentPage, productData, addToCart }) {
+            return (
+                <>
+                    <section className="hero">
+                        <div className="hero-content">
+                            <div className="hero-text">
+                                <h1>Tirzepatide de grau para pesquisa — Alta pureza</h1>
+                                <h2>Gold Premium Research • Opções: 1mg, 2,5mg, 5mg</h2>
+                                <div className="hero-buttons">
+                                    <button className="btn btn-gold" onClick={() => setCurrentPage('produtos')}>Comprar agora</button>
+                                    <button className="btn btn-secondary">Solicitar consulta</button>
+                                </div>
+                            </div>
+                            <div className="hero-image">
+                                <img src={productData.image} alt="Tirzepatide Research Grade" />
+                            </div>
+                        </div>
+                    </section>
+                    <div className="safety-ribbon">Para uso em pesquisa apenas. Não destinado ao uso humano ou veterinário.</div>
+                    <section className="highlights">
+                        <div className="highlight-card">
+                            <div className="highlight-icon">📦</div>
+                            <h3>Manuseio Premium</h3>
+                            <p>Embalagem selada e certificada</p>
+                        </div>
+                        <div className="highlight-card">
+                            <div className="highlight-icon">📋</div>
+                            <h3>COA Disponível</h3>
+                            <p>Certificado sob solicitação</p>
+                        </div>
+                        <div className="highlight-card">
+                            <div className="highlight-icon">💊</div>
+                            <h3>Opções de Dosagem</h3>
+                            <p>1mg, 2,5mg, 5mg</p>
+                        </div>
+                        <div className="highlight-card">
+                            <div className="highlight-icon">💬</div>
+                            <h3>Suporte Discreto</h3>
+                            <p>WhatsApp + Email</p>
+                        </div>
+                    </section>
+                </>
+            );
+        }
+
+        function ProductsPage({ productData, addToCart }) {
+            const [selectedOption, setSelectedOption] = useState(productData.options[0]);
+            return (
+                <>
+                    <div className="page-header">
+                        <h1>Produtos</h1>
+                        <p>Material de pesquisa de alta qualidade</p>
+                    </div>
+                    <div className="content-section">
+                        <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '2rem'}}>
+                            <div style={{background: 'white', borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--border-gray)', boxShadow: '0 4px 20px rgba(8, 59, 115, 0.08)', transition: 'all 0.3s ease'}}>
+                                <div style={{padding: '2rem', background: 'linear-gradient(135deg, #f8f9fa, white)'}}>
+                                    <img src={productData.image} alt={productData.name} style={{width: '100%'}} />
+                                </div>
+                                <div style={{padding: '1.5rem'}}>
+                                    <h3 style={{fontSize: '1.2rem', marginBottom: '0.5rem'}}>{productData.name}</h3>
+                                    <p style={{color: 'var(--text-light)', fontSize: '0.85rem', marginBottom: '1rem'}}>Grau para pesquisa • COA disponível</p>
+                                    <div style={{fontSize: '1.5rem', fontWeight: 700, color: 'var(--gold)', marginBottom: '1rem'}}>R$ {selectedOption.price.toFixed(2)}</div>
+                                    <div style={{display: 'flex', gap: '0.5rem', marginBottom: '1rem'}}>
+                                        {productData.options.map(opt => (
+                                            <button key={opt.id} onClick={() => setSelectedOption(opt)} style={{padding: '0.5rem 1rem', border: selectedOption.id === opt.id ? '2px solid var(--sapphire)' : '1px solid var(--sapphire)', borderRadius: '20px', background: selectedOption.id === opt.id ? 'var(--sapphire)' : 'white', color: selectedOption.id === opt.id ? 'white' : 'var(--sapphire)', cursor: 'pointer', transition: 'all 0.3s ease'}}>{opt.label}</button>
+                                        ))}
+                                    </div>
+                                    <button className="btn btn-primary" style={{width: '100%'}} onClick={() => addToCart(productData, selectedOption, 1)}>Adicionar ao carrinho</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="safety-ribbon" style={{marginTop: '3rem'}}>Para uso em pesquisa apenas. Não destinado ao uso humano ou veterinário.</div>
+                </>
+            );
+        }
+
+        function CartPage({ cart, updateQuantity, removeFromCart, calculateTotals, setCurrentPage }) {
+            const totals = calculateTotals();
+            const hasPromoQualified = () => {
+                const groupedItems = {};
+                cart.forEach(item => {
+                    const key = `${item.productId}-${item.option.id}`;
+                    if (!groupedItems[key]) groupedItems[key] = 0;
+                    groupedItems[key] += item.quantity;
+                });
+                return Object.values(groupedItems).some(qty => qty >= 3);
+            };
+
+            if (cart.length === 0) {
+                return (
+                    <>
+                        <div className="page-header">
+                            <h1>Carrinho</h1>
+                        </div>
+                        <div className="content-section">
+                            <div style={{textAlign: 'center', padding: '5rem 2rem'}}>
+                                <div style={{fontSize: '5rem', marginBottom: '2rem'}}>🛒</div>
+                                <h2 style={{marginBottom: '1rem', fontSize: '2rem'}}>Seu carrinho está vazio</h2>
+                                <p style={{color: 'var(--text-light)', marginBottom: '2rem'}}>Adicione produtos para começar sua compra</p>
+                                <button className="btn btn-primary" onClick={() => setCurrentPage('produtos')}>Ver produtos</button>
+                            </div>
+                        </div>
+                    </>
+                );
+            }
+
+            return (
+                <>
+                    <div className="page-header">
+                        <h1>Carrinho</h1>
+                    </div>
+                    <div className="content-section">
+                        <div style={{display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '3rem'}}>
+                            <div style={{background: 'white', padding: '2rem', borderRadius: '12px', border: '1px solid var(--border-gray)', boxShadow: '0 4px 20px rgba(8, 59, 115, 0.08)'}}>
+                                <h2 style={{marginBottom: '2rem', paddingBottom: '1rem', borderBottom: '2px solid var(--gold)'}}>Itens do Carrinho</h2>
+                                {cart.map(item => (
+                                    <div key={item.id} style={{display: 'grid', gridTemplateColumns: '100px 1fr auto', gap: '1.5rem', padding: '1.5rem 0', borderBottom: '1px solid var(--border-gray)'}}>
+                                        <img src={item.image} alt={item.productName} style={{width: '100px', height: '100px', objectFit: 'cover', borderRadius: '8px', border: '1px solid var(--border-gray)'}} />
+                                        <div>
+                                            <h3 style={{fontSize: '1.2rem', marginBottom: '0.5rem'}}>{item.productName}</h3>
+                                            <div style={{color: 'var(--text-light)', marginBottom: '0.5rem'}}>{item.option.label}</div>
+                                            <div style={{fontWeight: 700, color: 'var(--gold)', fontSize: '1.3rem'}}>R$ {item.option.price.toFixed(2)}</div>
+                                        </div>
+                                        <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '1rem'}}>
+                                            <div style={{display: 'flex', alignItems: 'center', gap: '1rem', border: '2px solid var(--border-gray)', borderRadius: '8px', padding: '0.5rem 1rem'}}>
+                                                <button onClick={() => updateQuantity(item.id, item.quantity - 1)} style={{width: '36px', height: '36px', border: 'none', background: 'var(--sapphire)', color: 'white', borderRadius: '6px', cursor: 'pointer', fontSize: '1.2rem'}}>−</button>
+                                                <span style={{minWidth: '40px', textAlign: 'center', fontWeight: 600, fontSize: '1.2rem'}}>{item.quantity}</span>
+                                                <button onClick={() => updateQuantity(item.id, item.quantity + 1)} style={{width: '36px', height: '36px', border: 'none', background: 'var(--sapphire)', color: 'white', borderRadius: '6px', cursor: 'pointer', fontSize: '1.2rem'}}>+</button>
+                                            </div>
+                                            <button onClick={() => removeFromCart(item.id)} style={{background: 'none', border: 'none', color: '#EF4444', cursor: 'pointer', fontSize: '1.5rem'}}>🗑️</button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                            <div style={{background: 'white', padding: '2rem', borderRadius: '12px', border: '2px solid var(--gold)', boxShadow: '0 4px 20px rgba(8, 59, 115, 0.08)', height: 'fit-content', position: 'sticky', top: '100px'}}>
+                                <h3 style={{fontSize: '1.5rem', marginBottom: '1.5rem', paddingBottom: '1rem', borderBottom: '2px solid var(--gold)'}}>Resumo do pedido</h3>
+                                {hasPromoQualified() ? (
+                                    <div style={{background: 'linear-gradient(135deg, var(--gold), #F4E4C1)', padding: '1rem', borderRadius: '8px', margin: '1rem 0', textAlign: 'center', fontWeight: 600, color: 'var(--dark-sapphire)'}}>
+                                        ✅ Promo aplicada: 33% OFF no 3º frasco
+                                    </div>
+                                ) : (
+                                    <div style={{background: '#FEF2F2', padding: '1rem', borderRadius: '8px', margin: '1rem 0', textAlign: 'center', fontWeight: 600, color: 'var(--text-dark)'}}>
+                                        💡 Dica: compre 3 e ganhe 33% OFF no 3º frasco
+                                    </div>
+                                )}
+                                <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '1rem', fontSize: '1rem'}}>
+                                    <span>Subtotal:</span>
+                                    <span>R$ {totals.subtotal.toFixed(2)}</span>
+                                </div>
+                                {totals.discount > 0 && (
+                                    <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '1rem', color: '#10B981'}}>
+                                        <span>Desconto:</span>
+                                        <span>- R$ {totals.discount.toFixed(2)}</span>
+                                    </div>
+                                )}
+                                <div style={{display: 'flex', justifyContent: 'space-between', fontSize: '1.5rem', fontWeight: 700, paddingTop: '1rem', borderTop: '2px solid var(--border-gray)', color: 'var(--sapphire)'}}>
+                                    <span>Total:</span>
+                                    <span style={{color: 'var(--gold)'}}>R$ {totals.total.toFixed(2)}</span>
+                                </div>
+                                <button className="btn btn-primary" style={{width: '100%', marginTop: '1.5rem', marginBottom: '1rem'}} onClick={() => setCurrentPage('checkout')}>Finalizar compra</button>
+                                <button className="btn btn-secondary" style={{width: '100%'}} onClick={() => setCurrentPage('produtos')}>Continuar comprando</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="safety-ribbon" style={{marginTop: '3rem'}}>Para uso em pesquisa apenas. Não destinado ao uso humano ou veterinário.</div>
+                </>
+            );
+        }
+
+        function CheckoutPage({ cart, calculateTotals }) {
+            const [selectedCrypto, setSelectedCrypto] = useState(null);
+            const [formData, setFormData] = useState({ nome: '', email: '', endereco: '', observacoes: '' });
+            const [orderSubmitted, setOrderSubmitted] = useState(false);
+            const totals = calculateTotals();
+
+            const cryptoWallets = {
+                BTC: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh',
+                LTC: 'LTC1234567890abcdefghijk',
+                SOL: 'SOL9876543210zyxwvutsrqp'
+            };
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                setOrderSubmitted(true);
+            };
+
+            if (cart.length === 0) {
+                return (
+                    <>
+                        <div className="page-header">
+                            <h1>Checkout</h1>
+                        </div>
+                        <div className="content-section">
+                            <div style={{textAlign: 'center', padding: '5rem 2rem'}}>
+                                <div style={{fontSize: '5rem', marginBottom: '2rem'}}>🛒</div>
+                                <h2 style={{marginBottom: '1rem', fontSize: '2rem'}}>Seu carrinho está vazio</h2>
+                                <p style={{color: 'var(--text-light)', marginBottom: '2rem'}}>Adicione produtos antes de finalizar a compra</p>
+                            </div>
+                        </div>
+                    </>
+                );
+            }
+
+            return (
+                <>
+                    <div className="page-header">
+                        <h1>Finalizar Compra</h1>
+                    </div>
+                    <div className="content-section">
+                        {!orderSubmitted ? (
+                            <form onSubmit={handleSubmit}>
+                                <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3rem'}}>
+                                    <div style={{background: 'white', padding: '2.5rem', borderRadius: '12px', border: '1px solid var(--border-gray)', boxShadow: '0 4px 20px rgba(8, 59, 115, 0.08)'}}>
+                                        <h2 style={{fontSize: '1.8rem', marginBottom: '2rem', paddingBottom: '1rem', borderBottom: '2px solid var(--gold)'}}>Informações do Cliente</h2>
+                                        <div style={{marginBottom: '1.5rem'}}>
+                                            <label style={{display: 'block', marginBottom: '0.5rem', fontWeight: 600, color: 'var(--sapphire)'}}>Nome *</label>
+                                            <input type="text" required value={formData.nome} onChange={(e) => setFormData({...formData, nome: e.target.value})} style={{width: '100%', padding: '1rem', border: '2px solid var(--border-gray)', borderRadius: '8px', fontSize: '1rem'}} />
+                                        </div>
+                                        <div style={{marginBottom: '1.5rem'}}>
+                                            <label style={{display: 'block', marginBottom: '0.5rem', fontWeight: 600, color: 'var(--sapphire)'}}>Email *</label>
+                                            <input type="email" required value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} style={{width: '100%', padding: '1rem', border: '2px solid var(--border-gray)', borderRadius: '8px', fontSize: '1rem'}} />
+                                        </div>
+                                        <div style={{marginBottom: '1.5rem'}}>
+                                            <label style={{display: 'block', marginBottom: '0.5rem', fontWeight: 600, color: 'var(--sapphire)'}}>Endereço (opcional)</label>
+                                            <input type="text" value={formData.endereco} onChange={(e) => setFormData({...formData, endereco: e.target.value})} style={{width: '100%', padding: '1rem', border: '2px solid var(--border-gray)', borderRadius: '8px', fontSize: '1rem'}} />
+                                        </div>
+                                        <div style={{marginBottom: '1.5rem'}}>
+                                            <label style={{display: 'block', marginBottom: '0.5rem', fontWeight: 600, color: 'var(--sapphire)'}}>Observações</label>
+                                            <textarea value={formData.observacoes} onChange={(e) => setFormData({...formData, observacoes: e.target.value})} style={{width: '100%', padding: '1rem', border: '2px solid var(--border-gray)', borderRadius: '8px', fontSize: '1rem', minHeight: '100px', resize: 'vertical'}}></textarea>
+                                        </div>
+                                    </div>
+                                    <div style={{background: 'white', padding: '2.5rem', borderRadius: '12px', border: '1px solid var(--border-gray)', boxShadow: '0 4px 20px rgba(8, 59, 115, 0.08)'}}>
+                                        <h2 style={{fontSize: '1.8rem', marginBottom: '2rem', paddingBottom: '1rem', borderBottom: '2px solid var(--gold)'}}>Pagamento em Cripto</h2>
+                                        <div style={{display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '2rem'}}>
+                                            {['BTC', 'LTC', 'SOL'].map(crypto => (
+                                                <div key={crypto} onClick={() => setSelectedCrypto(crypto)} style={{padding: '1.5rem', border: selectedCrypto === crypto ? '2px solid var(--gold)' : '2px solid var(--border-gray)', borderRadius: '8px', textAlign: 'center', cursor: 'pointer', transition: 'all 0.3s ease', background: selectedCrypto === crypto ? 'linear-gradient(135deg, rgba(212, 175, 55, 0.1), rgba(212, 175, 55, 0.05))' : 'white'}}>
+                                                    <div style={{fontSize: '2rem', marginBottom: '0.5rem'}}>{crypto === 'BTC' ? '₿' : crypto === 'LTC' ? 'Ł' : '◎'}</div>
+                                                    <div style={{fontWeight: 600, color: 'var(--sapphire)'}}>{crypto === 'BTC' ? 'Bitcoin' : crypto === 'LTC' ? 'Litecoin' : 'Solana'}</div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        {selectedCrypto && (
+                                            <div style={{background: 'var(--light-gray)', padding: '1.5rem', borderRadius: '8px', marginTop: '1.5rem'}}>
+                                                <h4 style={{marginBottom: '1rem'}}>Endereço da Carteira {selectedCrypto}</h4>
+                                                <div style={{background: 'white', padding: '1rem', borderRadius: '6px', border: '1px solid var(--border-gray)', fontFamily: 'monospace', wordBreak: 'break-all', margin: '1rem 0'}}>{cryptoWallets[selectedCrypto]}</div>
+                                                <button type="button" onClick={() => navigator.clipboard.writeText(cryptoWallets[selectedCrypto])} style={{background: 'var(--sapphire)', color: 'white', padding: '0.75rem 1.5rem', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 600, marginBottom: '1rem'}}>Copiar endereço</button>
+                                                <div style={{background: '#FEF2F2', borderLeft: '4px solid var(--gold)', padding: '1.5rem', marginTop: '1.5rem', borderRadius: '8px'}}>
+                                                    <h4 style={{color: 'var(--sapphire)', marginBottom: '0.5rem'}}>Instruções:</h4>
+                                                    <p style={{marginBottom: '0.5rem'}}>1. Envie R$ {totals.total.toFixed(2)} em {selectedCrypto} para o endereço acima</p>
+                                                    <p style={{marginBottom: '0.5rem'}}>2. Após o pagamento, clique em 'Enviar comprovante'</p>
+                                                    <p>3. Compartilhe o ID da transação conosco</p>
+                                                </div>
+                                            </div>
+                                        )}
+                                        <div style={{background: 'var(--light-gray)', padding: '1.5rem', borderRadius: '8px', marginTop: '2rem'}}>
+                                            <h4 style={{fontSize: '1.2rem', marginBottom: '1rem'}}>Resumo do Pedido</h4>
+                                            {cart.map(item => (
+                                                <div key={item.id} style={{display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem'}}>
+                                                    <span>{item.productName} ({item.option.label}) x{item.quantity}</span>
+                                                    <span>R$ {(item.option.price * item.quantity).toFixed(2)}</span>
+                                                </div>
+                                            ))}
+                                            <div style={{display: 'flex', justifyContent: 'space-between', fontSize: '1.5rem', fontWeight: 700, marginTop: '1rem', paddingTop: '1rem', borderTop: '2px solid var(--border-gray)', color: 'var(--sapphire)'}}>
+                                                <span>Total:</span>
+                                                <span style={{color: 'var(--gold)'}}>R$ {totals.total.toFixed(2)}</span>
+                                            </div>
+                                        </div>
+                                        <button type="submit" className="btn btn-gold" style={{width: '100%', marginTop: '1.5rem'}} disabled={!selectedCrypto}>Enviar comprovante</button>
+                                    </div>
+                                </div>
+                            </form>
+                        ) : (
+                            <div style={{maxWidth: '800px', margin: '0 auto'}}>
+                                <div style={{background: 'white', padding: '3rem', borderRadius: '12px', border: '1px solid var(--border-gray)', boxShadow: '0 4px 20px rgba(8, 59, 115, 0.08)', textAlign: 'center'}}>
+                                    <div style={{fontSize: '5rem', marginBottom: '2rem'}}>✅</div>
+                                    <h2 style={{marginBottom: '1rem', fontSize: '2rem'}}>Pedido Recebido!</h2>
+                                    <p style={{color: 'var(--text-light)', marginBottom: '2rem', fontSize: '1.1rem'}}>Envie o ID da transação e seu email do pedido para:</p>
+                                    <div style={{display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '2rem', marginTop: '3rem'}}>
+                                        <div style={{background: 'white', padding: '2rem', borderRadius: '12px', border: '1px solid var(--border-gray)', boxShadow: '0 4px 20px rgba(8, 59, 115, 0.08)'}}>
+                                            <div style={{fontSize: '3rem', color: 'var(--gold)', marginBottom: '1rem'}}>📱</div>
+                                            <h3 style={{marginBottom: '1rem'}}>WhatsApp</h3>
+                                            <a href="https://wa.me/17744983791" target="_blank" rel="noopener noreferrer" className="btn btn-primary" style={{marginTop: '1rem', display: 'inline-block'}}>Enviar via WhatsApp</a>
+                                        </div>
+                                        <div style={{background: 'white', padding: '2rem', borderRadius: '12px', border: '1px solid var(--border-gray)', boxShadow: '0 4px 20px rgba(8, 59, 115, 0.08)'}}>
+                                            <div style={{fontSize: '3rem', color: 'var(--gold)', marginBottom: '1rem'}}>📧</div>
+                                            <h3 style={{marginBottom: '1rem'}}>Email</h3>
+                                            <a href="mailto:support@solvelypeptides.com" className="btn btn-primary" style={{marginTop: '1rem', display: 'inline-block'}}>Enviar por Email</a>
+                                        </div>
+                                        <div style={{background: 'white', padding: '2rem', borderRadius: '12px', border: '1px solid var(--border-gray)', boxShadow: '0 4px 20px rgba(8, 59, 115, 0.08)'}}>
+                                            <div style={{fontSize: '3rem', color: 'var(--gold)', marginBottom: '1rem'}}>✈️</div>
+                                            <h3 style={{marginBottom: '1rem'}}>Telegram</h3>
+                                            <p style={{marginTop: '1rem', fontStyle: 'italic', color: 'var(--text-light)'}}>Em breve</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                    <div className="safety-ribbon" style={{marginTop: '3rem'}}>Para uso em pesquisa apenas. Não destinado ao uso humano ou veterinário.</div>
+                </>
+            );
+        }
+
+        function Footer({ setCurrentPage, setShowTelegramModal }) {
+            return (
+                <footer className="footer">
+                    <div className="footer-content">
+                        <div className="footer-section">
+                            <h3>Solvely Peptides</h3>
+                            <p>Fornecedor premium de materiais de pesquisa de alta qualidade para laboratórios e instituições científicas.</p>
+                            <p style={{fontSize: '0.85rem', marginTop: '1rem'}}>Gold Premium Research</p>
+                        </div>
+                        <div className="footer-section">
+                            <h3>Links</h3>
+                            <ul className="footer-links">
+                                <li><a onClick={() => setCurrentPage('produtos')}>Produtos</a></li>
+                                <li><a>Qualidade/COA</a></li>
+                                <li><a>Consulta</a></li>
+                                <li><a>FAQ</a></li>
+                                <li><a>Contato</a></li>
+                            </ul>
+                        </div>
+                        <div className="footer-section">
+                            <h3>Contato</h3>
+                            <a href="https://wa.me/17744983791" target="_blank" rel="noopener noreferrer" className="footer-contact-btn">📱 WhatsApp</a>
+                            <button onClick={() => setShowTelegramModal(true)} className="footer-contact-btn" style={{display: 'block', width: '100%', border: 'none', cursor: 'pointer'}}>✈️ Telegram (Em breve)</button>
+                            <a href="mailto:support@solvelypeptides.com" className="footer-contact-btn">📧 Email</a>
+                        </div>
+                        <div className="footer-section">
+                            <h3>Social</h3>
+                            <p>Siga-nos no X (Twitter) para atualizações e novidades sobre nossos produtos de pesquisa.</p>
+                        </div>
+                    </div>
+                    <div className="footer-bottom">
+                        <p>© 2026 Solvely Peptides. Todos os direitos reservados.</p>
+                        <p style={{marginTop: '1rem', fontWeight: 600}}>Para uso em pesquisa apenas. Não destinado ao uso humano ou veterinário.</p>
+                    </div>
+                </footer>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById("root"));
+        root.render(<App />);
+    </script>
+</body>
+</html>
